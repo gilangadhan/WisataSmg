@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity
                    .commit();
         } else if (id == R.id.nav_favorit) {
 
-
+//untuk bisa diklik
         } else if (id == R.id.nav_peta) {
 
         } else if (id == R.id.nav_tambah) {
