@@ -113,7 +113,6 @@ public class DetailWisataActivity extends AppCompatActivity {
         Glide.with(DetailWisataActivity.this).load("http://52.187.117.60/wisata_semarang/img/wisata/"+dataGambar).into(ivGambar);
 
         getSupportActionBar().setTitle(dataNama);
-        //mantab jiwa
 
     }
 

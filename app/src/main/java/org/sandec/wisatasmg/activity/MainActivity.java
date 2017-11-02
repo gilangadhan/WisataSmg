@@ -1,5 +1,6 @@
 package org.sandec.wisatasmg.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,7 +16,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.sandec.wisatasmg.R;
+import org.sandec.wisatasmg.fragment.FavoriteFragment;
 import org.sandec.wisatasmg.fragment.HomeFragment;
+import org.sandec.wisatasmg.fragment.MapFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -95,13 +98,23 @@ public class MainActivity extends AppCompatActivity
             manager.beginTransaction()
                    .replace(R.id.layout_untuk_fragment,new HomeFragment())
                    .commit();
+            getSupportActionBar().setTitle("Wisata Semarang");
         } else if (id == R.id.nav_favorit) {
-
-//untuk bisa diklik
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction()
+                    .replace(R.id.layout_untuk_fragment,new FavoriteFragment())
+                    .commit();
+            getSupportActionBar().setTitle("Wisata Favorit");
         } else if (id == R.id.nav_peta) {
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction()
+                    .replace(R.id.layout_untuk_fragment,new MapFragment())
+                    .commit();
+
+            getSupportActionBar().setTitle("Petaku");
 
         } else if (id == R.id.nav_tambah) {
-
+            startActivity(new Intent(this, CreateWisataActivity.class));
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
@@ -112,4 +125,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }
