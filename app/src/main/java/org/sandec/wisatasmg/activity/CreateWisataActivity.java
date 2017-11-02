@@ -16,6 +16,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+
 import org.sandec.wisatasmg.R;
 
 import java.io.IOException;
@@ -30,6 +35,7 @@ public class CreateWisataActivity extends AppCompatActivity implements EasyPermi
 
     private static final String TAG = "CreateWisataActivity";
     private static final int RC_GALLERY = 1;
+    private static final int RC_MAPS = 2;
     @BindView(R.id.imageView)
     ImageView imageView;
     @BindView(R.id.edt_nama)
@@ -70,6 +76,14 @@ public class CreateWisataActivity extends AppCompatActivity implements EasyPermi
                 openGallery();
                 break;
             case R.id.btn_maps:
+                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+                try {
+                    startActivityForResult(builder.build(CreateWisataActivity.this), RC_MAPS);
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                } catch (GooglePlayServicesRepairableException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.btn_submit:
                 break;
@@ -90,7 +104,7 @@ public class CreateWisataActivity extends AppCompatActivity implements EasyPermi
     }
 
     public Uri uri = null;
-
+    String lat, lng;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -103,6 +117,12 @@ public class CreateWisataActivity extends AppCompatActivity implements EasyPermi
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else if (requestCode == RC_MAPS && resultCode  == RESULT_OK){
+            Place place = PlacePicker.getPlace(CreateWisataActivity.this, data);
+            String alamat = String.format("%s", place.getName());
+            lat = String.valueOf(place.getLatLng().latitude);
+            lng = String.valueOf(place.getLatLng().longitude);
+            statusMaps.setText(alamat);
         }
     }
 
@@ -116,7 +136,7 @@ public class CreateWisataActivity extends AppCompatActivity implements EasyPermi
 
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
-        if (requestCode == 100){
+        if (requestCode == 100) {
             openGallery();
         }
     }
