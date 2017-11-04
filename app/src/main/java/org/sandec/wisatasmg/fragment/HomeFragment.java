@@ -4,6 +4,7 @@ package org.sandec.wisatasmg.fragment;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -61,6 +62,31 @@ public class HomeFragment extends Fragment {
 //        }
         ambilData();
 
+
+        final SwipeRefreshLayout dorefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        dorefresh.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+        /*event ketika widget dijalankan*/
+        dorefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshItem();
+            }
+
+            void refreshItem() {
+                ambilData();
+                onItemLoad();
+            }
+
+            void onItemLoad() {
+                dorefresh.setRefreshing(false);
+            }
+
+        });
+
         //adapter
         WisataAdapter adapter = new WisataAdapter(listData, getActivity());
         recyclerView.setAdapter(adapter);
@@ -69,6 +95,12 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ambilData();
     }
 
     private void ambilData() {
@@ -83,8 +115,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onResponse(Call<ListWisataModel> call, Response<ListWisataModel> response) {
                 progress.hide();
-                if (response.isSuccessful()){
-                    if(response.body().getSuccess().toString().equals("true")){
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess().toString().equals("true")) {
                         listData = response.body().getWisata();
                         WisataAdapter adapter = new WisataAdapter(listData, getActivity());
                         recyclerView.setAdapter(adapter);
@@ -101,7 +133,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ListWisataModel> call, Throwable t) {
-                Toast.makeText(getActivity(), "Response Failure", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "ModelUser Failure", Toast.LENGTH_SHORT).show();
             }
         });
     }

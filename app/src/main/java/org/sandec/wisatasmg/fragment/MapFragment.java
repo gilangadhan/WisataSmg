@@ -4,7 +4,9 @@ package org.sandec.wisatasmg.fragment;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +23,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -34,7 +38,7 @@ import org.sandec.wisatasmg.adapter.WisataAdapter;
 import org.sandec.wisatasmg.drawroutemap.DrawMarker;
 import org.sandec.wisatasmg.drawroutemap.DrawRouteMaps;
 import org.sandec.wisatasmg.drawroutemap.FetchUrl;
-import org.sandec.wisatasmg.helper.GPStrack;
+import org.sandec.wisatasmg.helper.LocationFinder;
 import org.sandec.wisatasmg.model.ListWisataModel;
 import org.sandec.wisatasmg.model.WisataModel;
 import org.sandec.wisatasmg.networking.ApiServices;
@@ -54,6 +58,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.content.ContentValues.TAG;
+import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,26 +74,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     String jarak;
     String waktu;
 
-    Double latMe;
-    Double lngMe;
-    GPStrack gpStrack;
+    float latMe;
+    float lngMe;
+    //GPStrack gpStrack;
     TextView tvWaktu;
     TextView tvJarak;
-
 
 
     public MapFragment() {
         // Required empty public constructor
     }
 
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        // Forward results to EasyPermissions
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,73 +97,105 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         listData = new ArrayList<>();
 
 
-        gpStrack = new GPStrack(getContext());
+        //  gpStrack = new GPStrack(getContext());
 
         tvWaktu = (TextView) view.findViewById(R.id.tv_map_waktu);
         tvJarak = (TextView) view.findViewById(R.id.tv_map_jarak);
 
-
-
         return view;
     }
+
+    boolean gpsStatus = false;
+    boolean networkStatus = false;
+
+    private void gpsSwitch() {
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+        gpsStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        networkStatus = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        if (!gpsStatus && !networkStatus) {
+            final Intent poke = new Intent();
+            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+            poke.setData(Uri.parse("3"));
+            getActivity().sendBroadcast(poke);
+        }
+    }
+
+    LatLng origin, destination;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
 
+        gpsSwitch();
+        LocationFinder gps = new LocationFinder(getActivity());
+
+        if (gps.locationavailable()) {
+            latMe = gps.getLatitude();
+            lngMe = gps.getLongitude();
+
+        } else {
+            final Intent poke = new Intent();
+            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+            poke.setData(Uri.parse("3"));
+            getActivity().sendBroadcast(poke);
+            latMe = gps.getLatitude();
+            lngMe = gps.getLongitude();
+        }
+
+        origin = new LatLng(latMe, lngMe);
+
+
+
         ambilData();
-
-
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
-            public boolean onMarkerClick(Marker marker) {
-
-
+            public void onInfoWindowClick(Marker marker) {
                 mMap.clear();
                 refreshMarker();
-
-                String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION};
-                if (EasyPermissions.hasPermissions(getContext(), perms)) {
-
-                    Log.d("MAP", "gagal map");
-                    latMe = gpStrack.getLatitude();
-                    lngMe = gpStrack.getLongitude();
-
-
-                } else {
-                    // Do not have permissions, request them now
-                    EasyPermissions.requestPermissions(getActivity(), "Butuh Lokasi",
-                            RC_CAMERA_AND_LOCATION, perms);
-                    Log.d("MAP", "sukses map");
-//                    progress.hide();
-                    return false;
-                }
-
                 Log.d("MAP", "sukses map");
 
-                LatLng origin = new LatLng(latMe, lngMe);
-                LatLng destination = marker.getPosition();
+                origin = new LatLng(latMe, lngMe);
+                destination = marker.getPosition();
 
-                DrawRouteMaps.getInstance(getContext())
-                        .draw(origin, destination, mMap);
+                DrawRouteMaps.getInstance(getContext()).draw(origin, destination, mMap);
 
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin,15));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin, 15));
                 getLocation(origin, destination, mMap);
 
 //                progress.hide();
-
-                return true;
-
             }
         });
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin, 15));
 
-
-
+//        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+//            @Override
+//            public boolean onMarkerClick(Marker marker) {
+//
+//
+//                mMap.clear();
+//                refreshMarker();
+//                Log.d("MAP", "sukses map");
+//
+//                origin = new LatLng(latMe, lngMe);
+//                destination = marker.getPosition();
+//
+//                DrawRouteMaps.getInstance(getContext()).draw(origin, destination, mMap);
+//
+//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin, 15));
+//                getLocation(origin, destination, mMap);
+//
+////                progress.hide();
+//
+//                return true;
+//
+//            }
+//        });
 
     }
-
 
 
     private void ambilData() {
@@ -182,8 +210,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onResponse(Call<ListWisataModel> call, Response<ListWisataModel> response) {
                 progress.hide();
-                if (response.isSuccessful()){
-                    if(response.body().getSuccess().toString().equals("true")){
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess().toString().equals("true")) {
                         listData = response.body().getWisata();
 
                         for (int i = 0; i < listData.size(); i++) {
@@ -191,12 +219,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             Double lat = Double.valueOf(listData.get(i).getLatitudeWisata());
                             Double lng = Double.valueOf(listData.get(i).getLongitudeWisata());
 
-                            LatLng sydney = new LatLng(lat,lng);
-                            mMap.addMarker(new MarkerOptions().position(sydney).title(listData.get(i).getNamaWisata()));
-
-
-
-
+                            LatLng lokasi = new LatLng(lat, lng);
+                            mMap.addMarker(new MarkerOptions().position(lokasi).title(listData.get(i).getNamaWisata()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_location)));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lokasi, 15));
 
                             Log.d(TAG, "onResponse: " + listData.get(i).getGambarWisata());
                         }
@@ -210,12 +235,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onFailure(Call<ListWisataModel> call, Throwable t) {
-                Toast.makeText(getActivity(), "Response Failure", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "ModelUser Failure", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void getLocation(final LatLng origin, final LatLng destination, final GoogleMap map){
+    private void getLocation(final LatLng origin, final LatLng destination, final GoogleMap map) {
         OkHttpClient client = new OkHttpClient();
 
         String url_route = FetchUrl.getUrl(origin, destination);
@@ -232,7 +257,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
-                Log.d("route",response.body().toString());
+                Log.d("route", response.body().toString());
 
                 try {
 
@@ -240,9 +265,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     JSONArray routes = json.getJSONArray("routes");
 
                     JSONObject distance = routes.getJSONObject(0)
-                                                .getJSONArray("legs")
-                                                .getJSONObject(0)
-                                                .getJSONObject("distance");
+                            .getJSONArray("legs")
+                            .getJSONObject(0)
+                            .getJSONObject("distance");
 
                     JSONObject duration = routes.getJSONObject(0)
                             .getJSONArray("legs")
@@ -256,8 +281,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     Log.d("duration", duration.toString());
 
 
-
-
                 } catch (JSONException e) {
 
                 }
@@ -266,30 +289,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     @Override
                     public void run() {
 
-                        Toast.makeText(getContext(),"Hey",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Hey", Toast.LENGTH_SHORT).show();
                         map.addMarker(new MarkerOptions()
                                 .title("Origin")
                                 .position(origin)
-                                .snippet(jarak + " " + waktu));
+                                .snippet(jarak + " " + waktu)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_location)));
 
-                        tvJarak.setText("Jarak: "+jarak);
+                        tvJarak.setText("Jarak: " + jarak);
 
                         tvJarak.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Uri gmmIntentUri = Uri.parse("google.navigation:q="+String.valueOf(destination.latitude)+","+String.valueOf(destination.longitude));
+                                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + String.valueOf(destination.latitude) + "," + String.valueOf(destination.longitude));
                                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                                 mapIntent.setPackage("com.google.android.apps.maps");
                                 startActivity(mapIntent);
                             }
                         });
 
-                        tvWaktu.setText("Waktu: "+waktu );
+                        tvWaktu.setText("Waktu: " + waktu);
 
                     }
                 });
-
-
 
 
             }
@@ -297,22 +319,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    private void refreshMarker(){
+    private void refreshMarker() {
 
         for (int i = 0; i < listData.size(); i++) {
 
             Double lat = Double.valueOf(listData.get(i).getLatitudeWisata());
             Double lng = Double.valueOf(listData.get(i).getLongitudeWisata());
 
-            LatLng sydney = new LatLng(lat,lng);
-            mMap.addMarker(new MarkerOptions().position(sydney).title(listData.get(i).getNamaWisata()));
+            LatLng sydney = new LatLng(lat, lng);
+            mMap.addMarker(new MarkerOptions().position(sydney).title(listData.get(i).getNamaWisata()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_location)));
 
             Log.d(TAG, "onResponse: " + listData.get(i).getGambarWisata());
 
         }
 
     }
-
 
 
 }

@@ -45,8 +45,10 @@ public class WisataAdapter extends RecyclerView.Adapter<WisataAdapter.MyViewHold
     public void onBindViewHolder(WisataAdapter.MyViewHolder holder, final int position) {
         holder.tvNamaWisata.setText(listData.get(position).getNamaWisata());
         holder.tvAlamatWisata.setText(listData.get(position).getAlamatWisata());
+        holder.tv_item_jumlah.setText("Kunjungan " + listData.get(position).getJumlah_kunjungan() + " orang");
+        holder.tv_item_jumlah.bringToFront();
         Glide.with(context)
-                .load("http://52.187.117.60/wisata_semarang/img/wisata/"+listData.get(position).getGambarWisata())
+                .load(Konstanta.WISATA_URL+listData.get(position).getGambarWisata())
                 .placeholder(R.drawable.no_image_found)
                 .error(R.drawable.no_image_found)
                 .into(holder.ivGambarWisata);
@@ -54,9 +56,13 @@ public class WisataAdapter extends RecyclerView.Adapter<WisataAdapter.MyViewHold
         ///untuk kirim data
         final Bundle datakiriman = new Bundle();
         datakiriman.putString(Konstanta.DATA_NAMA,listData.get(position).getNamaWisata());
+        datakiriman.putString(Konstanta.DATA_ID,listData.get(position).getIdWisata());
         datakiriman.putString(Konstanta.DATA_ALAMAT,listData.get(position).getAlamatWisata());
         datakiriman.putString(Konstanta.DATA_GAMBAR,listData.get(position).getGambarWisata());
         datakiriman.putString(Konstanta.DATA_DESKRIPSI,listData.get(position).getDeksripsiWisata());
+        datakiriman.putString(Konstanta.KUNJUNGAN,listData.get(position).getJumlah_kunjungan());
+        datakiriman.putString(Konstanta.LATITUDE,listData.get(position).getLatitudeWisata());
+        datakiriman.putString(Konstanta.LONGITUDE,listData.get(position).getLongitudeWisata());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,12 +109,14 @@ public class WisataAdapter extends RecyclerView.Adapter<WisataAdapter.MyViewHold
     //Inisialisasi Widger pada item
     public class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView ivGambarWisata;
-        TextView tvNamaWisata, tvAlamatWisata;
+        TextView tvNamaWisata, tvAlamatWisata, tv_item_jumlah;
         public MyViewHolder(View itemView) {
             super(itemView);
             ivGambarWisata = (ImageView) itemView.findViewById(R.id.iv_item_gambar);
             tvAlamatWisata = (TextView) itemView.findViewById(R.id.tv_item_alamat);
             tvNamaWisata = (TextView) itemView.findViewById(R.id.tv_item_nama);
+            tv_item_jumlah = (TextView) itemView.findViewById(R.id.tv_item_jumlah);
+
         }
     }
 }

@@ -181,7 +181,7 @@ public class CreateWisataActivity extends AppCompatActivity implements EasyPermi
         loading = ProgressDialog.show(CreateWisataActivity.this, null, "Loading . . .", true, false);
         loading.show();
         ApiServices mApiService = RetrofitConfig.getApiServices();
-        mApiService.CREATE_WISATA(fileToUpload, snama, sgambar, sdeskripsi, sevent, slat, slng, salamat).enqueue(new Callback<ResponseBody>() {
+        mApiService.CREATE_WISATA(fileToUpload, snama, sgambar, sdeskripsi, sevent, slng,slat, salamat).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
@@ -196,7 +196,7 @@ public class CreateWisataActivity extends AppCompatActivity implements EasyPermi
                             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.dismiss();
-                                    Intent a = new Intent(getApplicationContext(), MainActivity.class);
+                                    Intent a = new Intent(getApplicationContext(), MenuActivity.class);
                                     a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     startActivity(a);
                                     finish();

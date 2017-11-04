@@ -25,6 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     private final static String DESKRIPSI_WISATA = "deskripsi_wisata";
     private final static String LATITUDE_WISATA = "latitude_wisata";
     private final static String LONGITUDE_WISATA = "longitude_wisata";
+    private final static String KUNJUNGAN_WISATA = "jumlah_kunjungan";
 
     private final static int DATABASE_VERSION = 1;
     //query create table
@@ -35,7 +36,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
             +ALAMAT_WISATA+" TEXT, "
             +DESKRIPSI_WISATA+" TEXT, "
             +LATITUDE_WISATA+ " VARCHAR(20), "
-            +LONGITUDE_WISATA+ " VARCHAR(20));";
+            +LONGITUDE_WISATA+ " VARCHAR(20), "
+            +KUNJUNGAN_WISATA+ " VARCHAR(20));";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -56,7 +58,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     //CRUD
 
     //insert data
-    public long insertData(String namaWisata, String gambarWisata, String alamatWisata, String deskripsiWisata, String latWisata, String longWisata){
+    public long insertData(String namaWisata, String gambarWisata, String alamatWisata, String deskripsiWisata, String latWisata, String longWisata, String kunjungan){
         //kalau gagal <= 0
         // kalau berhasil > 0
         //saat insert kita dapat id
@@ -68,6 +70,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
             cv.put(DESKRIPSI_WISATA, deskripsiWisata);
             cv.put(LATITUDE_WISATA, latWisata);
             cv.put(LONGITUDE_WISATA, longWisata);
+            cv.put(KUNJUNGAN_WISATA, kunjungan);
         long id = db.insert(DATABASE_TABLE, null, cv);
         db.close();
         return id;
@@ -88,7 +91,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     public ArrayList<WisataModel> getDataFavorite() {
         ArrayList<WisataModel> listWisataFavorite = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] columnName = {WISATA_ID, NAMA_WISATA, GAMBAR_WISATA, ALAMAT_WISATA, DESKRIPSI_WISATA, LATITUDE_WISATA, LONGITUDE_WISATA};
+        String[] columnName = {WISATA_ID, NAMA_WISATA, GAMBAR_WISATA, ALAMAT_WISATA, DESKRIPSI_WISATA, LATITUDE_WISATA, LONGITUDE_WISATA, KUNJUNGAN_WISATA};
         Cursor kursor = db.query(
                 DATABASE_TABLE,
                 columnName,
@@ -102,6 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                 String deskripsiWisata = kursor.getString(kursor.getColumnIndex(DESKRIPSI_WISATA));
                 String latWisata = kursor.getString(kursor.getColumnIndex(LATITUDE_WISATA));
                 String longWisata = kursor.getString(kursor.getColumnIndex(LONGITUDE_WISATA));
+                String kunjungan = kursor.getString(kursor.getColumnIndex(KUNJUNGAN_WISATA));
 
                 WisataModel wisataFavorite = new WisataModel();
                 wisataFavorite.setIdWisata(String.valueOf(idWisata));
@@ -111,6 +115,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                 wisataFavorite.setDeksripsiWisata(deskripsiWisata);
                 wisataFavorite.setLatitudeWisata(latWisata);
                 wisataFavorite.setLongitudeWisata(longWisata);
+                wisataFavorite.setLongitudeWisata(kunjungan);
 
                 listWisataFavorite.add(wisataFavorite);
             }

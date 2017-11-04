@@ -19,8 +19,9 @@ import org.sandec.wisatasmg.R;
 import org.sandec.wisatasmg.fragment.FavoriteFragment;
 import org.sandec.wisatasmg.fragment.HomeFragment;
 import org.sandec.wisatasmg.fragment.MapFragment;
+import org.sandec.wisatasmg.helper.SessionManager;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends SessionManager
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
@@ -30,14 +31,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -116,9 +110,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_tambah) {
             startActivity(new Intent(this, CreateWisataActivity.class));
         } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+            sessionManager.logout();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

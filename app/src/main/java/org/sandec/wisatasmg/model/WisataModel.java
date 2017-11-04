@@ -32,7 +32,17 @@ public class WisataModel {
     @SerializedName("longitude_wisata")
     @Expose
     private String longitudeWisata;
+    @SerializedName("jumlah_kunjungan")
+    @Expose
+    private String jumlah_kunjungan;
 
+    public String getJumlah_kunjungan() {
+        return jumlah_kunjungan;
+    }
+
+    public void setJumlah_kunjungan(String jumlah_kunjungan) {
+        this.jumlah_kunjungan = jumlah_kunjungan;
+    }
 
     public String getIdWisata() {
         return idWisata;
