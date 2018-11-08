@@ -20,9 +20,6 @@ import org.sandec.wisatasmg.networking.RetrofitConfig;
 
 import java.io.IOException;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,15 +27,10 @@ import retrofit2.Response;
 
 public class LoginActivity extends SessionManager {
 
-    @BindView(R.id.edtUsername)
     EditText edtUsername;
-    @BindView(R.id.edtPassword)
     EditText edtPassword;
-    @BindView(R.id.txtLupaPassword)
     TextView txtLupaPassword;
-    @BindView(R.id.btnLogin)
     Button btnLogin;
-    @BindView(R.id.txtDaftar)
     TextView txtDaftar;
     String strusername, strpassword;
 
@@ -50,15 +42,14 @@ public class LoginActivity extends SessionManager {
         //to remove the action bar (title bar)
         getSupportActionBar().hide();
         setContentView(R.layout.activity_login);
-        ButterKnife.bind(this);
-    }
-
-    @OnClick({R.id.edtUsername, R.id.edtPassword, R.id.txtLupaPassword, R.id.btnLogin, R.id.txtDaftar})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.txtLupaPassword:
-                break;
-            case R.id.btnLogin:
+        edtUsername = findViewById(R.id.edtUsername);
+        edtPassword = findViewById(R.id.edtPassword);
+        txtLupaPassword = findViewById(R.id.txtLupaPassword);
+        btnLogin = findViewById(R.id.btnLogin);
+        txtDaftar = findViewById(R.id.txtDaftar);
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 strusername = edtUsername.getText().toString();
                 strpassword = edtPassword.getText().toString();
                 if (TextUtils.isEmpty(strusername)) {
@@ -70,11 +61,18 @@ public class LoginActivity extends SessionManager {
                 } else {
                     loginuser();
                 }
-                break;
-            case R.id.txtDaftar:
+            }
+        });
+        txtDaftar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 myIntent(SignupActivity.class);
-                break;
-        }
+            }
+        });
+    }
+
+    private void setupUI() {
+
     }
 
     private void loginuser() {
@@ -86,7 +84,7 @@ public class LoginActivity extends SessionManager {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 hideProgressDialog();
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     if (response.isSuccessful()) {
                         Log.i("debug", "On Respon : Berhasil ");
                         try {

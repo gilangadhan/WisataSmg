@@ -49,8 +49,6 @@ public class WisataAdapter extends RecyclerView.Adapter<WisataAdapter.MyViewHold
         holder.tv_item_jumlah.bringToFront();
         Glide.with(context)
                 .load(Konstanta.WISATA_URL+listData.get(position).getGambarWisata())
-                .placeholder(R.drawable.no_image_found)
-                .error(R.drawable.no_image_found)
                 .into(holder.ivGambarWisata);
 
         ///untuk kirim data

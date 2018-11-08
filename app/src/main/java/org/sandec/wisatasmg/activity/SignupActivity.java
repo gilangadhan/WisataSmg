@@ -14,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,9 +22,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlacePicker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,9 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -56,47 +49,49 @@ import retrofit2.Response;
 
 public class SignupActivity extends MyFuction implements EasyPermissions.PermissionCallbacks {
 
-
-    @BindView(R.id.tambah)
     ImageView tambah;
-    @BindView(R.id.edtNama)
     EditText edtNama;
-    @BindView(R.id.edtEmail)
     EditText edtEmail;
-    @BindView(R.id.edtPassword)
     EditText edtPassword;
-    @BindView(R.id.edtRePassword)
     EditText edtRePassword;
-    @BindView(R.id.btnSignup)
     Button btnSignup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
-        ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        setupUI();
 
         loading = new ProgressDialog(SignupActivity.this);
         loading.setIndeterminate(true);
         loading.setCancelable(false);
-    }
-
-
-    @OnClick({R.id.tambah, R.id.btnSignup})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.tambah:
+        tambah.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 galleryPermissionDialog();
-                break;
-            case R.id.btnSignup:
+            }
+        });
+        btnSignup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 check();
-                break;
-        }
+            }
+        });
     }
+
+    private void setupUI() {
+        tambah = findViewById(R.id.tambah);
+        edtNama = findViewById(R.id.edtNama);
+        edtEmail = findViewById(R.id.edtEmail);
+        edtPassword = findViewById(R.id.edtPassword);
+        edtRePassword = findViewById(R.id.edtRePassword);
+        btnSignup = findViewById(R.id.btnSignup);
+    }
+
 
     private void check() {
         if (TextUtils.isEmpty(edtNama.getText().toString())) {
@@ -133,11 +128,10 @@ public class SignupActivity extends MyFuction implements EasyPermissions.Permiss
 
             // SDK > 19 (Android 4.4)
         } else if (Build.VERSION.SDK_INT > 22) {
-            path = RealPathUtils.getRealPathFromURI_API23(SignupActivity.this, uri);
+            path = RealPathUtils.getRealPathFromURI_API19(SignupActivity.this, uri);
 
         } else {
             path = RealPathUtils.getRealPathFromURI_API19(SignupActivity.this, uri);
-
         }
 
         String nama = edtNama.getText().toString().trim();
@@ -152,7 +146,7 @@ public class SignupActivity extends MyFuction implements EasyPermissions.Permiss
         RequestBody snama = RequestBody.create(MediaType.parse("text/plain"), nama);
         RequestBody sgambar = RequestBody.create(MediaType.parse("text/plain"), gambar);
         RequestBody semail = RequestBody.create(MediaType.parse("text/plain"), email);
-        RequestBody spassword= RequestBody.create(MediaType.parse("text/plain"), password);
+        RequestBody spassword = RequestBody.create(MediaType.parse("text/plain"), password);
 
 //        Toast.makeText(getApplicationContext(), "nama :" + nama +
 //                        "\ndeskripsi :"+ deskripsi +"\nevent :"+ event +
@@ -186,7 +180,7 @@ public class SignupActivity extends MyFuction implements EasyPermissions.Permiss
                             builder.create().show();
                         } else {
                             String error = object.getString("message");
-                           myToast(error);
+                            myToast(error);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

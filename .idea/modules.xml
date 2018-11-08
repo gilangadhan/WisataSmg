@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/WisataSmg.iml" filepath="$PROJECT_DIR$/WisataSmg.iml" />
-      <module fileurl="file://D:\Android\sertifikasi\WisataSmg-master\WisataSmg.iml" filepath="D:\Android\sertifikasi\WisataSmg-master\WisataSmg.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

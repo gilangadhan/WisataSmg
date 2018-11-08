@@ -49,7 +49,7 @@ public class ProfilFragment extends Fragment {
         TextView user_profile_short_bio = (TextView) view.findViewById(R.id.user_profile_short_bio);
 
         SessionManager manager = new SessionManager(getActivity());
-        Glide.with(getActivity()).load(Konstanta.USER_URL+manager.getGambar()).error(R.drawable.account_sidebar_mockup_starkey_apps_fix).into(user_profile_photo);
+        Glide.with(getActivity()).load(Konstanta.USER_URL+manager.getGambar()).into(user_profile_photo);
         user_profile_name.setText(manager.getNama());
         user_profile_short_bio.setText(manager.getEmail());
 

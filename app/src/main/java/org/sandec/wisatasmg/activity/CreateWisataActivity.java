@@ -44,9 +44,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -58,49 +55,37 @@ import retrofit2.Response;
 
 public class CreateWisataActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
-
-    @BindView(R.id.imageView)
     ImageView imageView;
-    @BindView(R.id.edt_nama)
     EditText edtNama;
-    @BindView(R.id.input_layout_nama)
     TextInputLayout inputLayoutNama;
-    @BindView(R.id.edt_deskripsi)
     EditText edtDeskripsi;
-    @BindView(R.id.input_layout_deskripsi)
     TextInputLayout inputLayoutDeskripsi;
-    @BindView(R.id.edt_alamat)
     EditText edtAlamat;
-    @BindView(R.id.input_layout_alamat)
     TextInputLayout inputLayoutAlamat;
-    @BindView(R.id.edt_event)
     EditText edtEvent;
-    @BindView(R.id.input_layout_event)
     TextInputLayout inputLayoutEvent;
-    @BindView(R.id.btn_maps)
     Button btnMaps;
-    @BindView(R.id.status_maps)
     TextView statusMaps;
-    @BindView(R.id.btn_submit)
     Button btnSubmit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_wisata);
-        ButterKnife.bind(this);
+        setupUI();
         loading = new ProgressDialog(CreateWisataActivity.this);
         loading.setIndeterminate(true);
         loading.setCancelable(false);
-    }
 
-    @OnClick({R.id.imageView, R.id.btn_maps, R.id.btn_submit})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.imageView:
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 galleryPermissionDialog();
-                break;
-            case R.id.btn_maps:
+            }
+        });
+        btnMaps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
                 try {
                     startActivityForResult(builder.build(CreateWisataActivity.this), 2);
@@ -109,11 +94,28 @@ public class CreateWisataActivity extends AppCompatActivity implements EasyPermi
                 } catch (GooglePlayServicesNotAvailableException e) {
                     e.printStackTrace();
                 }
-                break;
-            case R.id.btn_submit:
+            }
+        });
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 check();
-                break;
-        }
+            }
+        });
+    }
+
+    private void setupUI() {
+        imageView = findViewById(R.id.imageView);
+        edtNama = findViewById(R.id.edt_nama);
+        inputLayoutNama = findViewById(R.id.input_layout_nama);
+        edtDeskripsi = findViewById(R.id.edt_deskripsi);
+        inputLayoutDeskripsi = findViewById(R.id.input_layout_deskripsi);
+        edtAlamat = findViewById(R.id.edt_alamat);
+        inputLayoutAlamat = findViewById(R.id.input_layout_alamat);
+        inputLayoutEvent = findViewById(R.id.input_layout_event);
+        btnMaps = findViewById(R.id.btn_maps);
+        statusMaps = findViewById(R.id.status_maps);
+        btnSubmit = findViewById(R.id.btn_submit);
     }
 
     private void check() {
@@ -181,7 +183,7 @@ public class CreateWisataActivity extends AppCompatActivity implements EasyPermi
         loading = ProgressDialog.show(CreateWisataActivity.this, null, "Loading . . .", true, false);
         loading.show();
         ApiServices mApiService = RetrofitConfig.getApiServices();
-        mApiService.CREATE_WISATA(fileToUpload, snama, sgambar, sdeskripsi, sevent, slng,slat, salamat).enqueue(new Callback<ResponseBody>() {
+        mApiService.CREATE_WISATA(fileToUpload, snama, sgambar, sdeskripsi, sevent, slng, slat, salamat).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
